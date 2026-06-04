@@ -38,6 +38,9 @@ Google Sheets + PostgreSQL (logs y métricas)
 ```
 
 ---
+## 📸 Workflow en n8n
+
+![Workflow de cobranzas](Captura%20de%20pantalla%202026-06-04%20104418.png)
 
 ## 📅 Recordatorios automáticos
 
