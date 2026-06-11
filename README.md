@@ -1,113 +1,31 @@
-# 💬 Automatización de Recordatorios de Cobranza por WhatsApp
+# Sistema de Recordatorios de Cobro por WhatsApp
 
-Sistema de cobranza automatizado que reemplaza el seguimiento manual de pagos con mensajes automáticos por WhatsApp, registros de auditoría y métricas de gestión.
+Automatización en producción para Berta, agencia de marketing de Leones, Córdoba.
+Reemplaza el seguimiento manual de cobranzas con una secuencia escalonada de mensajes
+WhatsApp automáticos, adjunto de PDF y alertas al administrador.
 
----
+## Problema
 
-## 🧩 Problema
+Berta gestiona +25 clientes con contratos de monto y fecha de vencimiento fijos.
+El seguimiento de cobros era 100% manual: la administrativa identificaba facturas
+vencidas, enviaba WhatsApp uno por uno, reenviaba remitos a pedido y hacía
+seguimiento de morosos — todo de memoria, sin trazabilidad y dependiente de que
+la persona se acordara en el momento correcto.
 
-La empresa realizaba el seguimiento de pagos de forma completamente manual. Cada mes, una persona debía revisar qué clientes tenían facturas pendientes, controlar fechas de vencimiento, enviar mensajes uno por uno por WhatsApp y hacer seguimiento de los morosos.
+## Solución
 
-Esto generaba:
+Workflow en n8n que corre de **lunes a sábado a las 09:00 hs**. Consulta Zoho Books,
+clasifica cada remito según su proximidad al vencimiento y envía el mensaje
+correspondiente con o sin PDF adjunto según el tipo de recordatorio.
 
-- Alto consumo de tiempo operativo
-- Olvidos en el envío de recordatorios
-- Cobros tardíos por falta de seguimiento
-- Nula trazabilidad del proceso
+## Secuencia de recordatorios
 
----
+| Tipo | Cuándo | Contenido |
+|------|--------|-----------|
+| `aviso_7_dias` | 7 días antes del vencimiento | Texto + PDF del remito adjunto |
+| `vencimiento` | Día del vencimiento | Texto de aviso |
+| `recordatorio_3` | 3 días después del vencimiento | Texto de seguimiento |
+| `recordatorio_7` | 7 días después del vencimiento | Texto al cliente + alerta al admin |
 
-## ✅ Solución
+## Arquitectura
 
-Sistema de automatización completo que detecta facturas pendientes, calcula qué recordatorio corresponde según la fecha de vencimiento y envía mensajes automáticos por WhatsApp con plantillas adaptadas al contexto de la deuda.
-
----
-
-## 🔁 Flujo del sistema
-
-```
-Zoho Invoice (facturas pendientes)
-        ↓
-    n8n (motor de automatización)
-        ↓
-Lógica de fechas → ¿qué recordatorio corresponde?
-        ↓
-Evolution API → WhatsApp Business
-        ↓
-Google Sheets + PostgreSQL (logs y métricas)
-```
-
----
-## 📸 Workflow en n8n
-
-![Workflow de cobranzas](Captura%20de%20pantalla%202026-06-04%20104418.png)
-
-## 📅 Recordatorios automáticos
-
-| Momento | Tipo de mensaje |
-|---|---|
-| 5 días antes del vencimiento | Recordatorio preventivo |
-| Día de vencimiento | Aviso de vencimiento |
-| 3 días después | Primera gestión de mora |
-| 7 días después | Segunda gestión de mora |
-
-Cada mensaje utiliza plantillas adaptadas al contexto y estado de la deuda.
-
----
-
-## ⚙️ Stack tecnológico
-
-| Herramienta | Rol |
-|---|---|
-| **n8n** | Motor de automatización (self-hosted) |
-| **Zoho Invoice** | Fuente de datos de facturas |
-| **Evolution API** | Envío de mensajes por WhatsApp Business |
-| **Google Sheets** | Logs de envíos y métricas |
-| **PostgreSQL** | Base de datos para deduplicación y auditoría |
-| **Docker / EasyPanel** | Infraestructura self-hosted en VPS |
-
----
-
-## 🏗️ Infraestructura
-
-El sistema corre completamente self-hosted sobre un VPS con Docker gestionado mediante EasyPanel. No depende de servicios externos de pago para la automatización.
-
----
-
-## 📋 Funcionalidades principales
-
-- Consulta automática de facturas/remitos pendientes en Zoho Invoice
-- Identificación de fecha de vencimiento y cálculo del tipo de recordatorio
-- Envío de mensajes por WhatsApp con plantillas contextuales
-- Registro de cada envío en logs para auditoría
-- Deduplicación: evita enviar el mismo recordatorio dos veces
-- Generación de métricas para análisis de gestión de cobranzas
-
----
-
-## 📈 Resultados
-
-- ✅ Eliminación del trabajo manual de seguimiento mensual
-- ✅ Mayor consistencia y puntualidad en las cobranzas
-- ✅ Trazabilidad completa de cada comunicación enviada
-- ✅ Proceso escalable a cientos o miles de clientes sin aumentar carga operativa
-
----
-
-## 📁 Estructura del repositorio
-
-```
-├── workflows/          # Exportaciones JSON del workflow de n8n
-├── docs/               # Diagramas y documentación técnica
-└── README.md
-```
-
----
-
-## ⚠️ Nota sobre credenciales
-
-Este repositorio no contiene credenciales, tokens ni datos de clientes reales. Las variables de entorno sensibles se gestionan mediante `.env` y no se suben al repositorio.
-
----
-
-*Desarrollado como solución productiva en entorno real — Berta Multimedios, Leones, Córdoba, Argentina.*
